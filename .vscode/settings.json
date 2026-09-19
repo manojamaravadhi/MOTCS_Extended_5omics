@@ -1,0 +1,7 @@
+{
+    "python.defaultInterpreterPath": "/.venv/bin/python",
+    "python.analysis.extraPaths": [
+        "./2.src"
+    ],
+    "terminal.integrated.cwd": "${workspaceFolder}"
+}

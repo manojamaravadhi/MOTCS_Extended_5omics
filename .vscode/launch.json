@@ -1,0 +1,66 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "🚀 1. Train 5-Omics MOTCS (Full)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/2.src/train_test_5omics.py",
+            "args": [
+                "--views", "1", "2", "3", "4", "5",
+                "--epochs", "50",
+                "--pretrain_epochs", "30",
+                "--batch_size", "64"
+            ],
+            "cwd": "${workspaceFolder}/2.src",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "⚡ 2. Fast Test Run (5-Omics, 2 Epochs)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/2.src/train_test_5omics.py",
+            "args": [
+                "--views", "1", "2", "3", "4", "5",
+                "--epochs", "2",
+                "--pretrain_epochs", "1",
+                "--batch_size", "128"
+            ],
+            "cwd": "${workspaceFolder}/2.src",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "📊 3. Run Multi-Omics Ablation Benchmark",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/2.src/run_ablation_benchmark.py",
+            "args": [
+                "--epochs", "20",
+                "--pretrain_epochs", "10",
+                "--batch_size", "128"
+            ],
+            "cwd": "${workspaceFolder}/2.src",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "🧬 4. Identify Top Biomarkers (5-Omics)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/2.src/identify_biomarkers_5omics.py",
+            "args": [
+                "--views", "1", "2", "3", "4", "5",
+                "--top_k", "30"
+            ],
+            "cwd": "${workspaceFolder}/2.src",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "📄 5. Run Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "cwd": "${workspaceFolder}/2.src",
+            "console": "integratedTerminal"
+        }
+    ]
+}

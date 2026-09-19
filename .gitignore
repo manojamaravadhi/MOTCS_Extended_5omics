@@ -1,0 +1,37 @@
+# Python Virtual Environment
+.venv/
+venv/
+env/
+ENV/
+
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Model Checkpoints (weights)
+*.pth
+*.pt
+*.ckpt
+*.bin
+3.results/**/*.pth
+3.results/**/*.pt
+
+# macOS Junk
+.DS_Store
+*/.DS_Store
+**/.DS_Store
+
+# IDE & Editor
+.idea/
+*.swp
+*.swo
+
+# Staging temp files
+1.data/raw_staging/
+*.log
+
+# Results and Output Directories
+3.results/
+results/
