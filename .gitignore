@@ -35,3 +35,4 @@ __pycache__/
 # Results and Output Directories
 3.results/
 results/
+*.zip
