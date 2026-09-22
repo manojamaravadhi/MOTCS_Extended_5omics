@@ -22,7 +22,7 @@ from model_Tran_5omics import (
 def parse_args():
     parser = argparse.ArgumentParser(description='Biomarker Recognition via Feature Perturbation')
     parser.add_argument('-c', '--cancertype', type=str, default='KIPAN')
-    parser.add_argument('--views', nargs='+', type=int, default=[1, 2, 3, 4, 5])
+    parser.add_argument('--views', nargs='+', type=int, default=None, help='Views to analyze (default: cohort-specific real views)')
     parser.add_argument('-f', '--fold', type=int, default=1)
     parser.add_argument('--top_k', type=int, default=30, help='Number of top biomarkers to extract per view')
     parser.add_argument('--model_dir', type=str, default='', help='Directory with trained model checkpoints')
@@ -82,7 +82,7 @@ def main(args):
     device = select_device(args.device)
     cancer = args.cancertype
     kf_num = args.fold
-    view_list = sorted(args.views)
+    view_list = sorted(args.views) if args.views is not None else ([1, 2, 3] if args.cancertype.upper() == 'KIPAN' else [1, 2, 3, 4])
     num_view = len(view_list)
     top_k = args.top_k
 

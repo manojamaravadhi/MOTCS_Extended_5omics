@@ -31,8 +31,8 @@ from utils import cal_sample_weight
 def parse_args():
     parser = argparse.ArgumentParser(description='MOTCS Extended: 5-Omics Cancer Subtype Classification')
     parser.add_argument('-c', '--cancertype', '--cancer', type=str, default='KIPAN', help='Cancer cohort name (default: KIPAN)')
-    parser.add_argument('--views', nargs='+', type=int, default=[1, 2, 3, 4, 5],
-                        help='Views to include (e.g. 1 2 3 4 5). 1:mRNA, 2:miRNA, 3:DNAmeth, 4:Prot, 5:Metab')
+    parser.add_argument('--views', nargs='+', type=int, default=None,
+                        help='Views to include (default: [1, 2, 3] for KIPAN, [1, 2, 3, 4] for BRCA/COAD/PRAD)')
     parser.add_argument('-f', '--fold', type=int, default=1, help='Fold number (default: 1)')
     parser.add_argument('-e', '--epochs', type=int, default=50, help='Number of joint training epochs (default: 50)')
     parser.add_argument('-pe', '--pretrain_epochs', type=int, default=30, help='Number of pretrain epochs (default: 30)')
@@ -175,7 +175,7 @@ def main(args):
 
     cancer = args.cancertype
     kf_num = args.fold
-    view_list = sorted(args.views)
+    view_list = sorted(args.views) if args.views is not None else ([1, 2, 3] if cancer.upper() == 'KIPAN' else [1, 2, 3, 4])
     num_view = len(view_list)
     print(f"Running MOTCS for {cancer} with {num_view} views: {view_list}")
 

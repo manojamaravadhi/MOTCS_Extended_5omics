@@ -35,18 +35,27 @@ class ArgsWrapper:
 def main():
     cli_args = parse_args()
 
-    experiments = [
-        # Single Omics
-        {"name": "Single-Omics (mRNA)",             "views": [1]},
-        {"name": "Single-Omics (miRNA)",            "views": [2]},
-        {"name": "Single-Omics (DNA Methylation)",  "views": [3]},
-        {"name": "Single-Omics (Proteomics)",       "views": [4]},
-        {"name": "Single-Omics (Metabolomics)",     "views": [5]},
-        # Multi-Omics Baselines & Extensions
-        {"name": "Original MOTCS (3-Omics)",       "views": [1, 2, 3]},
-        {"name": "MOTCS + Proteomics (4-Omics)",    "views": [1, 2, 3, 4]},
-        {"name": "MOTCS Extended (Full 5-Omics)",   "views": [1, 2, 3, 4, 5]},
-    ]
+    cancer = cli_args.cancertype.upper()
+    if cancer == 'KIPAN':
+        experiments = [
+            {"name": "Single-Omics (mRNA)",            "views": [1]},
+            {"name": "Single-Omics (miRNA)",           "views": [2]},
+            {"name": "Single-Omics (DNA Methylation)", "views": [3]},
+            {"name": "Dual-Omics (mRNA + miRNA)",      "views": [1, 2]},
+            {"name": "Dual-Omics (mRNA + Methylation)","views": [1, 3]},
+            {"name": "Dual-Omics (miRNA + Methylation)","views": [2, 3]},
+            {"name": "Full MOTCS (3-Omics)",           "views": [1, 2, 3]},
+        ]
+    else:
+        experiments = [
+            {"name": "Single-Omics (mRNA)",            "views": [1]},
+            {"name": "Single-Omics (CNA)",             "views": [2]},
+            {"name": "Single-Omics (DNA Methylation)", "views": [3]},
+            {"name": "Single-Omics (RPPA Proteomics)", "views": [4]},
+            {"name": "Dual-Omics (mRNA + Proteomics)", "views": [1, 4]},
+            {"name": "Tri-Omics (mRNA + CNA + Met)",   "views": [1, 2, 3]},
+            {"name": "Full MOTCS Extended (4-Omics)",  "views": [1, 2, 3, 4]},
+        ]
 
     results = []
 
@@ -103,7 +112,7 @@ def main():
     # Convert DataFrame to Markdown table manually (no tabulate dependency)
     headers = list(df_res.columns)
     md_lines = [
-        f"# MOTCS 5-Omics Ablation Benchmark Results\n\n**Cohort:** {cli_args.cancertype} (Fold {cli_args.fold})\n\n",
+        f"# MOTCS Real Multi-Omics Ablation Benchmark Results\n\n**Cohort:** {cli_args.cancertype} (Fold {cli_args.fold})\n\n",
         "| " + " | ".join(headers) + " |",
         "| " + " | ".join(["---"] * len(headers)) + " |"
     ]

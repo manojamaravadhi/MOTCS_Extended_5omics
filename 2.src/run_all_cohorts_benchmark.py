@@ -16,10 +16,10 @@ import subprocess
 import pandas as pd
 
 COHORTS_CONFIG = {
-    "KIPAN": {"subtypes": 4, "name": "Renal Cancer (KIRC, KIRP, KICH, Normal)"},
-    "BRCA":  {"subtypes": 5, "name": "Breast Cancer (LumA, LumB, Basal, Her2, Normal)"},
-    "COAD":  {"subtypes": 3, "name": "Colorectal Cancer (CIN, GS, MSI)"},
-    "PRAD":  {"subtypes": 5, "name": "Prostate Cancer (ERG, ETV1, ETV4, SPOP, Other)"}
+    "KIPAN": {"subtypes": 4, "name": "Renal Cancer (KIRC, KIRP, KICH, Normal)", "default_views": [1, 2, 3]},
+    "BRCA":  {"subtypes": 5, "name": "Breast Cancer (LumA, LumB, Basal, Her2, Normal)", "default_views": [1, 2, 3, 4]},
+    "COAD":  {"subtypes": 3, "name": "Colorectal Cancer (CIN, GS, MSI)", "default_views": [1, 2, 3, 4]},
+    "PRAD":  {"subtypes": 5, "name": "Prostate Cancer (ERG, ETV1, ETV4, SPOP, Other)", "default_views": [1, 2, 3, 4]}
 }
 
 
@@ -54,8 +54,8 @@ def main():
     parser = argparse.ArgumentParser(description="Multi-Cohort Extended MOTCS Runner")
     parser.add_argument("--cohorts", nargs="+", default=["KIPAN", "BRCA", "COAD", "PRAD"],
                         help="Cohorts to benchmark (default: KIPAN BRCA COAD PRAD)")
-    parser.add_argument("--views", nargs="+", type=int, default=[1, 2, 3, 4, 5],
-                        help="Views to activate (default: 1 2 3 4 5)")
+    parser.add_argument("--views", nargs="+", type=int, default=None,
+                        help="Views to activate (default: cohort-specific real views, e.g. 1 2 3 for KIPAN, 1 2 3 4 for BRCA/COAD/PRAD)")
     parser.add_argument("--epochs", type=int, default=15, help="Number of joint training epochs (default: 15)")
     parser.add_argument("--pretrain_epochs", type=int, default=10, help="Number of pretrain epochs (default: 10)")
     parser.add_argument("--batch_size", type=int, default=64, help="Batch size (default: 64)")
@@ -86,12 +86,13 @@ def main():
 
         cfg = COHORTS_CONFIG[cohort]
         subtypes = cfg["subtypes"]
+        cohort_views = args.views if args.views is not None else cfg["default_views"]
 
         print("\n" + "#" * 70)
         print(f"  Running {cohort} ({cfg['name']}, {subtypes} Subtypes, Fold {args.fold})")
         print("#" * 70 + "\n")
 
-        views_str = [str(v) for v in args.views]
+        views_str = [str(v) for v in cohort_views]
         cmd = [
             sys.executable, train_script,
             "--cancer", cohort,

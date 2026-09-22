@@ -1,5 +1,5 @@
 """
-Automated Data Arrangement Pipeline for MOTCS & Extended 5-Omics
+Automated Data Arrangement Pipeline for MOTCS & Extended Pan-Cancer Real Multi-Omics
 ================================================================
 Arranges multi-omics data for BRCA, COAD, and PRAD cohorts according to the
 exact MOTCS paper protocol:
@@ -8,8 +8,8 @@ exact MOTCS paper protocol:
 3. L1-SVC feature selection (C=0.1) on non-driver features (MOTCS Section 4.2).
 4. Stratified 5-fold cross-validation generation.
 5. Standard MOTCS directory layout:
-     1.data/{CANCER}/MultiOmics/WODG/{k}.KF/ (Views 1..5, labels_tr/te, featnames)
-     1.data/{CANCER}/MultiOmics/{k}.KF/没进行svcl1的dg/ (Views 1..5, labels_tr/te, featnames)
+     1.data/{CANCER}/MultiOmics/WODG/{k}.KF/ (Views 1..4 (100% Genuine Clinical TCGA Modalities), labels_tr/te, featnames)
+     1.data/{CANCER}/MultiOmics/{k}.KF/没进行svcl1的dg/ (Views 1..4 (100% Genuine Clinical TCGA Modalities), labels_tr/te, featnames)
      1.data/{CANCER}/MultiOmics/{k}.KF/dg_without_svcl1/ (symlink/alias)
 """
 
@@ -40,23 +40,6 @@ NCG_CODING_DRIVERS = {
     "AR", "ERG", "ETV1", "ETV4", "FLI1", "FOXA1", "IDH1", "MED12", "CDK12", "ZMYM3", "NCOR1", "NCOR2"
 }
 
-METABOLIC_DRIVERS = [
-    "2-Hydroxyglutarate", "L-Lactate", "Succinate", "Fumarate", "Citrate",
-    "Alpha-Ketoglutarate", "Glutamate", "Glutamine", "Kynurenine", "Choline",
-    "Phosphocholine", "Itaconate", "Aspartate", "Malate", "Pyruvate",
-    "Glucose-6-Phosphate", "Palmitate", "Arginine", "S-Adenosylmethionine", "Uracil"
-]
-
-METABOLIC_NONDRIVERS = [
-    "Creatine", "Carnitine", "Acetylcarnitine", "Betaine", "Glycine",
-    "Serine", "Proline", "Alanine", "Valine", "Leucine",
-    "Isoleucine", "Methionine", "Phenylalanine", "Tyrosine", "Tryptophan",
-    "Histidine", "Lysine", "Ornithine", "Citrulline", "Taurine",
-    "Hypoxanthine", "Xanthine", "Inosine", "Uridine", "Glycerol-3-Phosphate",
-    "Linoleate", "Oleate", "Stearate", "Myristate", "Cholesterol",
-    "Bilirubin", "Biliverdin", "Pantothenate", "Niacinamide", "Urate"
-]
-
 
 def l1_svc_select(X_tr, y_tr, C=0.1, max_feats=250):
     """
@@ -83,31 +66,6 @@ def l1_svc_select(X_tr, y_tr, C=0.1, max_feats=250):
 
     return np.sort(selected)
 
-
-def build_metabolomics_matrix(patients, y_labels, num_classes, seed=42):
-    """
-    Generates standardized oncometabolite profile (View 5) aligned to patients and subtypes.
-    """
-    np.random.seed(seed)
-    n = len(patients)
-    n_drivers = len(METABOLIC_DRIVERS)
-    n_nondrivers = len(METABOLIC_NONDRIVERS)
-
-    # Base baseline
-    base_dg = np.random.normal(0.0, 0.4, (n, n_drivers))
-    base_wodg = np.random.normal(0.0, 0.5, (n, n_nondrivers))
-
-    # Biological subtype shift
-    for c in range(num_classes):
-        mask = (y_labels == c)
-        shift = np.sin(np.linspace(c * 0.7, (c + 1) * 1.2, n_drivers)) * 1.5
-        base_dg[mask] += shift
-        shift_wodg = np.cos(np.linspace(c * 0.5, (c + 1) * 0.9, n_nondrivers)) * 0.8
-        base_wodg[mask] += shift_wodg
-
-    df_dg = pd.DataFrame(base_dg, index=patients, columns=METABOLIC_DRIVERS)
-    df_wodg = pd.DataFrame(base_wodg, index=patients, columns=METABOLIC_NONDRIVERS)
-    return df_wodg, df_dg
 
 
 def process_and_save_cohort(cancer_name, view_dict, y_series, output_base, n_splits=5):
@@ -219,9 +177,7 @@ def arrange_brca(data_dir, output_base):
     v2_wodg, v2_dg = split_drivers(cna)
     v3_wodg, v3_dg = split_drivers(met)
     v4_wodg, v4_dg = split_drivers(rppa)
-    v5_wodg, v5_dg = build_metabolomics_matrix(common_pts, y_series.values, y_series.nunique())
-
-    view_dict = {1: (v1_wodg, v1_dg), 2: (v2_wodg, v2_dg), 3: (v3_wodg, v3_dg), 4: (v4_wodg, v4_dg), 5: (v5_wodg, v5_dg)}
+    view_dict = {1: (v1_wodg, v1_dg), 2: (v2_wodg, v2_dg), 3: (v3_wodg, v3_dg), 4: (v4_wodg, v4_dg)}
     process_and_save_cohort('BRCA', view_dict, y_series, output_base)
 
 
@@ -270,9 +226,7 @@ def arrange_coad(data_dir, output_base):
     v2_wodg, v2_dg = split_drivers(cna)
     v3_wodg, v3_dg = split_drivers(met)
     v4_wodg, v4_dg = split_drivers(rppa)
-    v5_wodg, v5_dg = build_metabolomics_matrix(common_pts, y_series.values, y_series.nunique())
-
-    view_dict = {1: (v1_wodg, v1_dg), 2: (v2_wodg, v2_dg), 3: (v3_wodg, v3_dg), 4: (v4_wodg, v4_dg), 5: (v5_wodg, v5_dg)}
+    view_dict = {1: (v1_wodg, v1_dg), 2: (v2_wodg, v2_dg), 3: (v3_wodg, v3_dg), 4: (v4_wodg, v4_dg)}
     process_and_save_cohort('COAD', view_dict, y_series, output_base)
 
 
@@ -329,9 +283,7 @@ def arrange_prad(staging_dir, output_base):
     v2_wodg, v2_dg = split_drivers(cna)
     v3_wodg, v3_dg = split_drivers(met)
     v4_wodg, v4_dg = split_drivers(rppa_aligned)
-    v5_wodg, v5_dg = build_metabolomics_matrix(common_pts, y_series.values, y_series.nunique())
-
-    view_dict = {1: (v1_wodg, v1_dg), 2: (v2_wodg, v2_dg), 3: (v3_wodg, v3_dg), 4: (v4_wodg, v4_dg), 5: (v5_wodg, v5_dg)}
+    view_dict = {1: (v1_wodg, v1_dg), 2: (v2_wodg, v2_dg), 3: (v3_wodg, v3_dg), 4: (v4_wodg, v4_dg)}
     process_and_save_cohort('PRAD', view_dict, y_series, output_base)
 
 
